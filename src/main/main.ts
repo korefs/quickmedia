@@ -1,8 +1,8 @@
-import { app, BrowserWindow, Tray, Menu, ipcMain, globalShortcut, clipboard, Notification, shell, nativeImage } from 'electron';
-import path from 'path';
+import { app, BrowserWindow, clipboard, globalShortcut, ipcMain, Menu, nativeImage, Notification, shell, Tray } from 'electron';
 import Store from 'electron-store';
-import { DownloadManager } from './download-manager';
+import path from 'path';
 import { Settings } from '../types';
+import { DownloadManager } from './download-manager';
 
 const store = new Store<{ settings: Settings; history: any[] }>();
 let tray: Tray | null = null;
@@ -10,8 +10,10 @@ let mainWindow: BrowserWindow | null = null;
 let downloadManager: DownloadManager;
 let lastClipboardText = '';
 
+const DOWNLOAD_PATH = app.getPath('downloads');
+
 const defaultSettings: Settings = {
-  downloadPath: path.join(app.getPath('home'), 'Downloads'),
+  downloadPath: DOWNLOAD_PATH,
   quality: 'best',
   format: 'mp4',
   autoDownloadClipboard: false,
