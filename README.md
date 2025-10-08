@@ -1,13 +1,12 @@
 # QuickMedia
 
-Downloader de mídia minimalista para macOS que vive na menu bar.
+Downloader de mídia minimalista que vive na menu bar.
 
 ## Funcionalidades
 
-- **Menu Bar App**: Ícone discreto na barra de menu do macOS
+- **Menu Bar App**: Ícone discreto na barra de menu
 - **Drag & Drop**: Arraste URLs diretamente para o ícone
 - **Clipboard Monitor**: Detecta automaticamente URLs de mídia copiadas
-- **Interface Minimalista**: Popup de 400x500px com design clean
 - **Downloads Simultâneos**: Até 3 downloads ao mesmo tempo
 - **Hotkey Global**: `Cmd+Shift+D` para baixar URL do clipboard
 - **Notificações Nativas**: Alertas quando downloads concluem
