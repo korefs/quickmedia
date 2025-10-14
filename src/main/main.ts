@@ -206,6 +206,10 @@ function setupIpcHandlers() {
     downloadManager.startDownload(url);
   });
 
+  ipcMain.on('download:cancel', (_event, id: string) => {
+    downloadManager.cancelDownload(id);
+  });
+
   ipcMain.handle('validate:url', async (_event, url: string) => {
     return isValidUrl(url);
   });

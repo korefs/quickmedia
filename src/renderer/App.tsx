@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
-import { Settings, Download } from '../types';
-import UrlInput from './components/UrlInput';
+import { useEffect, useState } from 'react';
+import { Download, Settings } from '../types';
 import DownloadList from './components/DownloadList';
 import HistoryList from './components/HistoryList';
 import SettingsPanel from './components/SettingsPanel';
+import UrlInput from './components/UrlInput';
 
 function App() {
   const [downloads, setDownloads] = useState<Download[]>([]);
@@ -91,6 +91,11 @@ function App() {
     setSettings((prev) => (prev ? { ...prev, ...newSettings } : null));
   };
 
+  const handleCancelDownload = (id: string) => {
+    window.electronAPI.cancelDownload(id);
+    setDownloads((prev) => prev.filter((d) => d.id !== id));
+  };
+
   if (!settings) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -168,7 +173,7 @@ function App() {
               <h2 className="text-sm font-semibold text-gray-400 mb-2">
                 Downloads Ativos
               </h2>
-              <DownloadList downloads={downloads} />
+              <DownloadList downloads={downloads} onCancel={handleCancelDownload} />
             </div>
           )}
 

@@ -74,6 +74,14 @@ Para sites que requerem login (TikTok, Instagram, conteúdo privado):
 5. Tente baixar o conteúdo novamente
 
 O QuickMedia irá usar os cookies do seu navegador para autenticar e acessar o conteúdo.
+Nota: Mesmo o site sendo suportado podem haver motivos que façam você não conseguir fazer o download.
+[Sites suportados](https://raw.githubusercontent.com/yt-dlp/yt-dlp/refs/heads/master/supportedsites.md)
+
+## TODO
+- [ ] Permitir configurar input yt-dlp manualmente.
+- [ ] Permitir inserir credenciais pessoais para downloads privados.
+- [ ] Qualidade configurável na hora do download
+- [ ] Auto update por release
 
 ## Tecnologias
 

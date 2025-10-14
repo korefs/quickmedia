@@ -3,6 +3,7 @@ import { contextBridge, ipcRenderer } from 'electron';
 contextBridge.exposeInMainWorld('electronAPI', {
   // Download operations
   startDownload: (url: string) => ipcRenderer.send('download:start', url),
+  cancelDownload: (id: string) => ipcRenderer.send('download:cancel', id),
   validateUrl: (url: string) => ipcRenderer.invoke('validate:url', url),
   openFile: (path: string) => ipcRenderer.send('open:file', path),
 
@@ -29,20 +30,3 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.removeAllListeners(channel);
   },
 });
-
-declare global {
-  interface Window {
-    electronAPI: {
-      startDownload: (url: string) => void;
-      validateUrl: (url: string) => Promise<boolean>;
-      openFile: (path: string) => void;
-      getSettings: () => Promise<any>;
-      updateSettings: (settings: any) => void;
-      onDownloadProgress: (callback: (data: any) => void) => void;
-      onDownloadComplete: (callback: (data: any) => void) => void;
-      onDownloadError: (callback: (data: any) => void) => void;
-      onClipboardUrlDetected: (callback: (url: string) => void) => void;
-      removeAllListeners: (channel: string) => void;
-    };
-  }
-}

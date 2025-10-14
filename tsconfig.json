@@ -16,6 +16,6 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src/renderer/**/*"],
+  "include": ["src/renderer/**/*", "index.d.ts", "src/types/**/*"],
   "references": [{ "path": "./tsconfig.main.json" }]
 }

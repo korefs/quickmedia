@@ -32,6 +32,7 @@ export interface Download {
 
 export interface IpcChannels {
   'download:start': (url: string) => void;
+  'download:cancel': (id: string) => void;
   'download:progress': (data: { id: string; progress: DownloadProgress }) => void;
   'download:complete': (data: { id: string; filePath: string }) => void;
   'download:error': (data: { id: string; error: string }) => void;

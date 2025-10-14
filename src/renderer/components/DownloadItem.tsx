@@ -2,9 +2,10 @@ import { Download } from '../../types';
 
 interface DownloadItemProps {
   download: Download;
+  onCancel?: (id: string) => void;
 }
 
-export default function DownloadItem({ download }: DownloadItemProps) {
+export default function DownloadItem({ download, onCancel }: DownloadItemProps) {
   const getStatusColor = () => {
     switch (download.status) {
       case 'downloading':
@@ -80,6 +81,17 @@ export default function DownloadItem({ download }: DownloadItemProps) {
             <p className="text-xs text-success mt-1">Download concluído</p>
           )}
         </div>
+        {(download.status === 'pending' || download.status === 'downloading' || download.status === 'error') && onCancel && (
+          <button
+            onClick={() => onCancel(download.id)}
+            className="p-1 hover:bg-gray-800 rounded transition-colors text-gray-400 hover:text-red-400"
+            title="Cancelar download"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        )}
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
-import { spawn } from 'child_process';
+import { spawn, execSync } from 'child_process';
 import { Notification } from 'electron';
 import path from 'path';
+import { existsSync } from 'fs';
 import { Settings, Download, DownloadProgress } from '../types';
 
 interface DownloadEventCallback {
@@ -16,20 +17,77 @@ function uuidv4(): string {
   });
 }
 
+// Find yt-dlp path
+function findYtDlpPath(): string {
+  // Common paths for yt-dlp
+  const possiblePaths = [
+    '/opt/homebrew/bin/yt-dlp', // Apple Silicon Mac
+    '/usr/local/bin/yt-dlp',    // Intel Mac
+    '/usr/bin/yt-dlp',           // Standard Linux
+  ];
+
+  // Try to find in common paths
+  for (const ytDlpPath of possiblePaths) {
+    if (existsSync(ytDlpPath)) {
+      console.log('Found yt-dlp at:', ytDlpPath);
+      return ytDlpPath;
+    }
+  }
+
+  // Try using 'which' command
+  try {
+    const result = execSync('which yt-dlp', { encoding: 'utf-8' }).trim();
+    if (result && existsSync(result)) {
+      console.log('Found yt-dlp via which:', result);
+      return result;
+    }
+  } catch (error) {
+    console.error('which command failed:', error);
+  }
+
+  // Fallback to just 'yt-dlp' and hope it's in PATH
+  console.warn('yt-dlp not found in common paths, using PATH');
+  return 'yt-dlp';
+}
+
 export class DownloadManager {
   private activeDownloads: Map<string, Download> = new Map();
+  private activeProcesses: Map<string, any> = new Map();
   private queue: string[] = [];
   private readonly MAX_CONCURRENT = 3;
   private settings: Settings;
   private eventCallback: DownloadEventCallback;
+  private ytDlpPath: string;
 
   constructor(settings: Settings, eventCallback: DownloadEventCallback) {
     this.settings = settings;
     this.eventCallback = eventCallback;
+    this.ytDlpPath = findYtDlpPath();
   }
 
   updateSettings(settings: Settings) {
     this.settings = settings;
+  }
+
+  cancelDownload(id: string) {
+    // Kill the process if it's running
+    const process = this.activeProcesses.get(id);
+    if (process) {
+      process.kill();
+      this.activeProcesses.delete(id);
+    }
+
+    // Remove from active downloads
+    this.activeDownloads.delete(id);
+
+    // Remove from queue if it's there
+    const queueIndex = this.queue.indexOf(id);
+    if (queueIndex > -1) {
+      this.queue.splice(queueIndex, 1);
+    }
+
+    // Process next in queue
+    this.processQueue();
   }
 
   startDownload(url: string) {
@@ -68,7 +126,21 @@ export class DownloadManager {
 
     const args = this.buildYtDlpArgs(download.url);
 
-    const ytDlp = spawn('yt-dlp', args);
+    const ytDlp = spawn(this.ytDlpPath, args);
+
+    // Store the process so we can kill it if needed
+    this.activeProcesses.set(id, ytDlp);
+
+    // Handle spawn error
+    ytDlp.on('error', (error) => {
+      console.error('Failed to spawn yt-dlp:', error);
+      download.status = 'error';
+      download.error = 'yt-dlp não encontrado. Instale com: brew install yt-dlp';
+      this.eventCallback('download:error', {
+        id,
+        error: download.error,
+      });
+    });
 
     let title = '';
 
@@ -129,6 +201,9 @@ export class DownloadManager {
     });
 
     ytDlp.on('close', (code) => {
+      // Clean up the process reference
+      this.activeProcesses.delete(id);
+
       if (code === 0) {
         download.status = 'completed';
         download.filePath = path.join(this.settings.downloadPath, title || 'download');
